@@ -1,8 +1,6 @@
 class PipelineBlock(object):
+
     def process(self, data):
-        """
-        Usually this does something to the input. This just passes it along.
-        """
         out = data
         return out
 
@@ -14,6 +12,7 @@ class PipelineBlock(object):
 
 
 class Pipeline(PipelineBlock):
+
     def __init__(self, blocks):
         self.blocks = blocks
 
@@ -23,6 +22,7 @@ class Pipeline(PipelineBlock):
 
 
 class PassthroughPipeline(Pipeline):
+
     def __init__(self, blocks, expand_output=True):
         super(PassthroughPipeline, self).__init__(blocks)
         self.expand_output = expand_output
@@ -30,9 +30,11 @@ class PassthroughPipeline(Pipeline):
     def process(self, data):
         out = Pipeline.process(self, data)
         if self.expand_output:
-            return [data, *out]
+            l = [data]
+            l.extend(out)
+            return l
         else:
-            return [data, out]
+            return data, out
 
 
 def _process_block(block, data):

@@ -10,7 +10,7 @@ class TestCopper(TestCase):
         """
         Simple series test:
 
-            ─a─b─
+            -- a - b --
         """
         a = _FBlock()
         b = _GBlock()
@@ -23,9 +23,11 @@ class TestCopper(TestCase):
         """
         Simple parallel structure:
 
-             ┌─a─┐
-            ─┤   ┝━
-             └─b─┘
+              .- a -.
+              |     |
+            --+     +==
+              |     |
+              '- b -'
         """
         a = _FBlock()
         b = _GBlock()
@@ -38,9 +40,11 @@ class TestCopper(TestCase):
         """
         Simple parallel to series structure:
 
-             ┌─a─┐
-            ─┤   ┝━c─
-             └─b─┘
+              .- a -.
+              |     |
+            --+     += c --
+              |     |
+              '- b -'
         """
         a = _FBlock()
         b = _GBlock()
@@ -55,11 +59,13 @@ class TestCopper(TestCase):
         Composite pipeline (pipeline within a pipeline):
 
             m:
-                ─a─b─
+                -- a - b --
             p:
-                 ┌─m─┐
-                ─┤   ┝━d─
-                 └─c─┘
+                  .- m -.
+                  |     |
+                --+     += d --
+                  |     |
+                  '- c -'
         """
         a = _FBlock()
         b = _GBlock()
@@ -76,12 +82,15 @@ class TestCopper(TestCase):
         Pass-through pipeline test
 
             m:
-                 ┌─────┐
-                 ├─b─┐ │
-                ─┤   ┝━┷━
-                 └─c─┘
+                  .--------.
+                  |        |
+                  +- b -.  |
+                  |     |  |
+                --+     +==+==
+                  |     |
+                  '- c -'
             p:
-                ─a─m━d─
+                -- a - m = d --
         """
         b = _FBlock()
         c = _GBlock()
