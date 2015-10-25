@@ -4,8 +4,8 @@ copper
 
 ``copper`` is a small infrastructure for processing data in a pipeline style.
 You create pipeline blocks, then connect them up with an efficient (but still
-readable) syntax. It was originally created for flexibly creating in real-time
-signal processing applications.
+readable) syntax. It was originally created for flexibly creating pipelines
+in real-time signal processing applications.
 
 The syntax for expressing pipeline structure is based on lists and tuples.
 Lists hold elements that are connected in series::
@@ -34,7 +34,8 @@ block, it must be a block that handles multiple inputs::
          └─b─┘
 
 The bottom line is: pipeline blocks **accept** input types and they **specify**
-the output types.
+the output types. You are responsible for ensuring that pipeline blocks can be
+connected as specified.
 
 Sometimes, you might want to pass the output of a block to some block structure
 *and* somewhere downstream. To handle this case, ``copper`` has
@@ -63,7 +64,9 @@ Implementing Pipelines
 
 Pipeline blocks are simple to implement. It is only expected that you implement
 a ``process()`` method which takes one argument (``data``) and returns
-something. Usually, the output is some processed form of the input data::
+something. For multi-input blocks, you'll probably want to just expand the
+inputs right off the bat (e.g. ``in_a, in_b = data``). Usually, the output is
+some processed form of the input data::
 
     import copper
 
