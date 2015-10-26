@@ -1,6 +1,9 @@
-======
-copper
-======
+::
+
+     ┌─□─  ┌─□─┐   ┌─□─┐   ┌─□─┐   ┌─□─┐   ┌─□──
+    ─┤    ─┤   ├─ ─┤   ├─ ─┤   ├─ ─┼─□─┴─ ─┤
+     └─□─  └─□─┘   ├─□─┘   ├─□─┘   └───    │
+                   │       │
 
 ``copper`` is a small infrastructure for processing data in a pipeline style.
 You create pipeline blocks, then connect them up with an efficient (but still
