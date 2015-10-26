@@ -5,6 +5,12 @@
      └─□─  └─□─┘   ├─□─┘   ├─□─┘   └───    │
                    │       │
 
+
+.. image:: https://api.travis-ci.org/ixjlyons/copper.svg?branch=master
+    :target: https://travis-ci.org/ixjlyons/copper
+    :alt: Travis CI Status
+
+
 ``copper`` is a small infrastructure for processing data in a pipeline style.
 You create pipeline blocks, then connect them up with an efficient (but still
 readable) syntax. It was originally created for flexibly creating pipelines
