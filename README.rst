@@ -52,8 +52,10 @@ a "pass-through" pipeline that you can use as a block within another pipeline::
          └─c─┘
 
     [a, p, d]:
-
-        ─a─p━d─
+                       ┌─────┐
+                       ├─b─┐ │
+        ─a─p━d─  →  ─a─┤   ┝━┷━d─
+                       └─c─┘
 
 The pass-through pipeline places its own output(s) after its input, so the
 input is accesible on the other side. There are cases where this type of
