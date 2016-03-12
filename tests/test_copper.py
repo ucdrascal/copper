@@ -103,6 +103,19 @@ class TestCopper(TestCase):
         ares = _f(data)
         self.assertEqual(result, _threein(ares, _f(ares), _g(ares)))
 
+    def test_clear(self):
+        """
+        Clearing a stateful block.
+        """
+        init = 4
+        b = _Stateful(init)
+        p = copper.Pipeline([b])
+        p.process(data)
+
+        self.assertEqual(b.data, _f(data))
+        b.clear()
+        self.assertEqual(b.data, init)
+
 
 def _f(x):
     return 2 * x + 1
@@ -144,3 +157,17 @@ class _ThreeIn(copper.PipelineBlock):
     def process(self, data):
         a, b, c = data
         return _threein(a, b, c)
+
+
+class _Stateful(copper.PipelineBlock):
+
+    def __init__(self, initial):
+        self.initial = initial
+        self.clear()
+
+    def clear(self):
+        self.data = self.initial
+
+    def process(self, data):
+        self.data = _f(data)
+        return self.data
