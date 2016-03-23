@@ -61,11 +61,22 @@ class Pipeline(PipelineBlock):
     blocks : nested lists/tuples of objects derived from PiplineBlock
         The blocks in the pipline, with lists processed in series and tuples
         processed in parallel.
+
+    Attributes
+    ----------
+
+    named_blocks : dict
+        Dictionary of blocks in the pipeline. Keys are the names given to the
+        blocks in the pipeline and values are the block objects.
     """
 
     def __init__(self, blocks, name=None):
         super(Pipeline, self).__init__(name=name)
         self.blocks = blocks
+        self.named_blocks = {}
+
+        # traverse the block structure to fill named_blocks
+        self._call_block('name', self.blocks)
 
     def process(self, data):
         """
@@ -85,7 +96,7 @@ class Pipeline(PipelineBlock):
             The data output by the `process` method of the last block(s) in the
             pipeline.
         """
-        out = _call_block('process', self.blocks, data)
+        out = self._call_block('process', self.blocks, data)
         return out
 
     def clear(self):
@@ -93,7 +104,43 @@ class Pipeline(PipelineBlock):
         Calls the `clear` method on each block in the pipeline. The effect
         depends on the blocks themselves.
         """
-        _call_block('clear', self.blocks)
+        self._call_block('clear', self.blocks)
+
+    def _call_block(self, fname, block, data=None):
+        if type(block) is list:
+            out = self._call_list(fname, block, data)
+        elif type(block) is tuple:
+            out = self._call_tuple(fname, block, data)
+        else:
+            if fname == 'name':
+                self.named_blocks[block.name] = block
+                return
+
+            f = getattr(block, fname)
+            if data is not None:
+                out = f(data)
+            else:
+                out = f()
+
+            if hasattr(block, 'hooks') and fname == 'process':
+                for hook in block.hooks:
+                    hook(out)
+
+        return out
+
+    def _call_list(self, fname, block, data=None):
+        out = data
+        for b in block:
+            out = self._call_block(fname, b, out)
+
+        return out
+
+    def _call_tuple(self, fname, block, data=None):
+        out = []
+        for b in block:
+            out.append(self._call_block(fname, b, data))
+
+        return out
 
 
 class PassthroughPipeline(Pipeline):
@@ -110,38 +157,3 @@ class PassthroughPipeline(Pipeline):
             return l
         else:
             return data, out
-
-
-def _call_block(fname, block, data=None):
-    if type(block) is list:
-        out = _call_list(fname, block, data)
-    elif type(block) is tuple:
-        out = _call_tuple(fname, block, data)
-    else:
-        f = getattr(block, fname)
-        if data is not None:
-            out = f(data)
-        else:
-            out = f()
-
-        if hasattr(block, 'hooks') and fname == 'process':
-            for hook in block.hooks:
-                hook(out)
-
-    return out
-
-
-def _call_list(fname, block, data=None):
-    out = data
-    for b in block:
-        out = _call_block(fname, b, out)
-
-    return out
-
-
-def _call_tuple(fname, block, data=None):
-    out = []
-    for b in block:
-        out.append(_call_block(fname, b, data))
-
-    return out

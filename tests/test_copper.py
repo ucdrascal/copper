@@ -153,6 +153,20 @@ class TestCopper(TestCase):
 
         self.assertEqual(result, _g(_f(data)))
 
+    def test_block_access(self):
+        """
+        Test access to blocks in a pipeline using `named_blocks`.
+        """
+        a = _NamedBlock(name='a')
+        b = _NamedBlock(name='b')
+
+        p = copper.Pipeline([a, b])
+
+        self.assertIs(p.named_blocks['a'], a)
+        self.assertIs(p.named_blocks['b'], b)
+        self.assertIsNot(p.named_blocks['a'], b)
+        self.assertIsNot(p.named_blocks['b'], a)
+
 
 def _f(x):
     return 2 * x + 1
@@ -199,6 +213,7 @@ class _ThreeIn(copper.PipelineBlock):
 class _Stateful(copper.PipelineBlock):
 
     def __init__(self, initial):
+        super(_Stateful, self).__init__()
         self.initial = initial
         self.clear()
 
