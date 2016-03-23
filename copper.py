@@ -1,11 +1,20 @@
 class PipelineBlock(object):
 
+    def __init__(self, name=None):
+        self._name = name
+        if name is None:
+            self._name = self.__class__.__name__
+
     def process(self, data):
         out = data
         return out
 
     def clear(self):
         pass
+
+    @property
+    def name(self):
+        return self._name
 
     def __repr__(self):
         return "%s.%s()" % (
@@ -40,12 +49,14 @@ class Pipeline(PipelineBlock):
 
     Parameters
     ----------
+
     blocks : nested lists/tuples of objects derived from PiplineBlock
         The blocks in the pipline, with lists processed in series and tuples
         processed in parallel.
     """
 
-    def __init__(self, blocks):
+    def __init__(self, blocks, name=None):
+        super(Pipeline, self).__init__(name=name)
         self.blocks = blocks
 
     def process(self, data):
@@ -79,8 +90,8 @@ class Pipeline(PipelineBlock):
 
 class PassthroughPipeline(Pipeline):
 
-    def __init__(self, blocks, expand_output=True):
-        super(PassthroughPipeline, self).__init__(blocks)
+    def __init__(self, blocks, expand_output=True, name=None):
+        super(PassthroughPipeline, self).__init__(blocks, name=name)
         self.expand_output = expand_output
 
     def process(self, data):

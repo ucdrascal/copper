@@ -116,6 +116,16 @@ class TestCopper(TestCase):
         b.clear()
         self.assertEqual(b.data, init)
 
+    def test_named_block(self):
+        """
+        Make sure block naming works.
+        """
+        b = _NamedBlock()
+        self.assertEqual(b.name, '_NamedBlock')
+
+        b2 = _NamedBlock('blockname')
+        self.assertEqual(b2.name, 'blockname')
+
 
 def _f(x):
     return 2 * x + 1
@@ -171,3 +181,9 @@ class _Stateful(copper.PipelineBlock):
     def process(self, data):
         self.data = _f(data)
         return self.data
+
+
+class _NamedBlock(copper.PipelineBlock):
+
+    def __init__(self, name=None):
+        super(_NamedBlock, self).__init__(name)
