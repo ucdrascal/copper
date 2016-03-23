@@ -126,6 +126,33 @@ class TestCopper(TestCase):
         b2 = _NamedBlock('blockname')
         self.assertEqual(b2.name, 'blockname')
 
+    def test_hooks(self):
+        """
+        Test hooks for intermediate blocks.
+        """
+        def hook1(out):
+            self.assertEqual(out, _f(data))
+
+        def hook2(out):
+            self.assertEqual(out, _f(data))
+
+        # first test just one hook
+        a = _HookEnabledBlock(hooks=[hook1])
+        b = _GBlock()
+
+        p = copper.Pipeline([a, b])
+        result = p.process(data)
+
+        self.assertEqual(result, _g(_f(data)))
+
+        # test multiple hooks
+        a = _HookEnabledBlock(hooks=[hook1, hook2])
+        p = copper.Pipeline([a, b])
+
+        result = p.process(data)
+
+        self.assertEqual(result, _g(_f(data)))
+
 
 def _f(x):
     return 2 * x + 1
@@ -186,4 +213,13 @@ class _Stateful(copper.PipelineBlock):
 class _NamedBlock(copper.PipelineBlock):
 
     def __init__(self, name=None):
-        super(_NamedBlock, self).__init__(name)
+        super(_NamedBlock, self).__init__(name=name)
+
+
+class _HookEnabledBlock(copper.PipelineBlock):
+
+    def __init__(self, hooks=None):
+        super(_HookEnabledBlock, self).__init__(hooks=hooks)
+
+    def process(self, data):
+        return _f(data)

@@ -102,3 +102,48 @@ Now, you just give the pipeline input and get its output::
     result = p.process(input)
 
 In this case, the result would be ``2 * (input + 1) == 8``.
+
+
+Post-Process Hooks
+------------------
+
+Sometimes, it's useful to be able to hook into some block in the pipeline to
+retrieve its data in the middle of a run through the pipeline. For instance,
+let's say you have a simple pipeline::
+
+    [a, b]:
+
+        ─a─b─
+
+You run some data through the pipeline to get the result from block ``b``, but
+you also want to run some function with the output of ``a``. ``PipelineBlock``
+takes a ``hooks`` keword argument which takes a list of functions to execute
+after the block's ``process`` method finishes. To use hooks, make sure your
+custom block calls the parent ``PipelineBlock`` ``__init__`` method. For
+example::
+
+    import copper
+
+    class FooBlock(copper.PipelineBlock):
+        def __init__(self, hooks=None):
+            super(FooBlock, self).__init__(hooks=hooks)
+
+        def process(self, data):
+            return data + 1
+
+    class BarBlock(copper.PipelineBlock):
+        def process(self, data):
+            return 2 * data
+
+    def foo_hook(data):
+        print("FooBlock output is %d".format(data))
+
+    a = FooBlock(hooks=[foo_hook])
+    b = BarBlock()
+
+    p = copper.Pipeline([a, b])
+    result = p.process(3)
+
+Now, the call to ``process`` on the pipeline will input 3 to block ``a``, block
+``a`` will add 1 then print ``FooBlock output is 4``, and then 4 will be passed
+to block ``b``, which will return 8.

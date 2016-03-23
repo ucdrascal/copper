@@ -1,9 +1,13 @@
 class PipelineBlock(object):
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, hooks=None):
         self._name = name
         if name is None:
             self._name = self.__class__.__name__
+
+        self._hooks = hooks
+        if hooks is None:
+            self._hooks = []
 
     def process(self, data):
         out = data
@@ -15,6 +19,10 @@ class PipelineBlock(object):
     @property
     def name(self):
         return self._name
+
+    @property
+    def hooks(self):
+        return self._hooks
 
     def __repr__(self):
         return "%s.%s()" % (
@@ -115,6 +123,10 @@ def _call_block(fname, block, data=None):
             out = f(data)
         else:
             out = f()
+
+        if hasattr(block, 'hooks') and fname == 'process':
+            for hook in block.hooks:
+                hook(out)
 
     return out
 
