@@ -21,7 +21,7 @@ setup(
     ],
     keywords='processing pipeline',
 
-    url='https://github.com/ixjlyons/copper',
+    url='https://github.com/ucdrascal/copper',
     author='Kenneth Lyons',
     author_email='ixjlyons@gmail.com',
     license='new BSD',

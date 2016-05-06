@@ -6,8 +6,8 @@
                    │       │
 
 
-.. image:: https://api.travis-ci.org/ixjlyons/copper.svg?branch=master
-    :target: https://travis-ci.org/ixjlyons/copper
+.. image:: https://api.travis-ci.org/ucdrascal/copper.svg?branch=master
+    :target: https://travis-ci.org/ucdrascal/copper
     :alt: Travis CI Status
 
 
