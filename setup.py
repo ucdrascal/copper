@@ -13,7 +13,7 @@ setup(
 
     classifiers=[
         'Development Status :: 4 - Beta',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: MIT License',
         'Intended Audience :: Science/Research',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 2',
@@ -24,7 +24,7 @@ setup(
     url='https://github.com/ucdrascal/copper',
     author='Kenneth Lyons',
     author_email='ixjlyons@gmail.com',
-    license='new BSD',
+    license='MIT',
 
     py_modules=['copper'],
 
