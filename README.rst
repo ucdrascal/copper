@@ -11,7 +11,7 @@
     :alt: Travis CI Status
 
 .. image:: https://codecov.io/gh/ucdrascal/copper/branch/master/graph/badge.svg
-     :target: https://codecov.io/gh/ucdrascal/copper
+    :target: https://codecov.io/gh/ucdrascal/copper
 
 ``copper`` is a small infrastructure for processing data in a pipeline style.
 You create pipeline blocks, then connect them up with an efficient (but still
