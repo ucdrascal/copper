@@ -29,7 +29,7 @@ setup(
     author_email='ixjlyons@gmail.com',
     license='MIT',
 
-    py_modules=['copper'],
+    packages=['copper'],
 
     test_suite='nose.collector',
     tests_require=['nose'],
