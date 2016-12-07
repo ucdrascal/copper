@@ -6,4 +6,5 @@
 /.eggs/
 
 
+_build/
 *.swp
