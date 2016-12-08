@@ -4,7 +4,9 @@
 /env*
 /build/
 /.eggs/
-
-
 _build/
 *.swp
+/.tox
+/htmlcov/
+/.cache
+.coverage

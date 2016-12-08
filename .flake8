@@ -1,0 +1,5 @@
+[flake8]
+
+exclude = .git,env,.tox,__pycache__,doc,.eggs
+# E206: mising whitespace around arithmetic operator (personal taste)
+ignore = E226

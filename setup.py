@@ -5,6 +5,7 @@ def readme():
     with open('README.rst') as f:
         return f.read()
 
+
 setup(
     name='copper',
     version='0.1',
