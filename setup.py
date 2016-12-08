@@ -32,11 +32,6 @@ setup(
 
     packages=['copper'],
 
-    install_requires=[
-        'numpy',
-        'scipy'
-    ],
-
     test_suite='nose.collector',
     tests_require=['nose'],
 )
