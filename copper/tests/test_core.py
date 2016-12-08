@@ -167,6 +167,13 @@ class TestCopper(TestCase):
         self.assertIsNot(p.named_blocks['a'], b)
         self.assertIsNot(p.named_blocks['b'], a)
 
+    def test_callable_block(self):
+        a = _FBlock()
+        b = copper.CallablePipelineBlock(_g)
+        p = copper.Pipeline([a, b])
+        result = p.process(data)
+        self.assertEqual(result, _g(_f(data)))
+
 
 def _f(x):
     return 2 * x + 1

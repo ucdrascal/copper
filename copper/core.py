@@ -1,4 +1,11 @@
+"""
+Base classes for pipelines and pipeline blocks.
+"""
+
+
 class PipelineBlock(object):
+    """Basic unit of processing in a pipeline.
+    """
 
     def __init__(self, name=None, hooks=None):
         self._name = name
@@ -10,8 +17,7 @@ class PipelineBlock(object):
             self._hooks = []
 
     def process(self, data):
-        out = data
-        return out
+        return data
 
     def clear(self):
         pass
@@ -43,12 +49,12 @@ class Pipeline(PipelineBlock):
     output of block `a` is passed to both blocks `b` and `c`. The output of
     blocks `b` and `c` are then both passed to block `d`.
 
-    >>> from pygesture import pipeline
-    >>> a = pipeline.PipelineBlock()
-    >>> b = pipeline.PipelineBlock()
-    >>> c = pipeline.PipelineBlock()
-    >>> d = pipeline.PipelineBlock()
-    >>> p = pipeline.Pipeline([a, (b, c), d])
+    >>> from copper import Pipeline, PipelineBlock
+    >>> a = PipelineBlock()
+    >>> b = PipelineBlock()
+    >>> c = PipelineBlock()
+    >>> d = PipelineBlock()
+    >>> p = Pipeline([a, (b, c), d])
 
     Blocks that are arranged to take multiple inputs (such as block `d` in the
     above example) should expect to take the corresponding number of inputs in
@@ -144,6 +150,12 @@ class Pipeline(PipelineBlock):
 
 
 class PassthroughPipeline(Pipeline):
+    """Convenience block for passing input along to output.
+
+    A passthrough pipeline block is useful when you want to process some data
+    then provided both the processed output as well as the original input to
+    another block downstream.
+    """
 
     def __init__(self, blocks, expand_output=True, name=None):
         super(PassthroughPipeline, self).__init__(blocks, name=name)
@@ -157,3 +169,34 @@ class PassthroughPipeline(Pipeline):
             return l
         else:
             return data, out
+
+
+class CallablePipelineBlock(PipelineBlock):
+    """A `PipelineBlock` that does not require persistent attributes.
+
+    Many `PipelineBlock` implementations don't require attributes to update
+    on successive calls to the `process` method, but instead are essentially a
+    function that can be called repeatedly. This class is for conveniently
+    creating such a block.
+
+    Parameters
+    ----------
+    processor : callable(data)
+        Function that gets called when the block's `process` method is called.
+        Should take a single input and return output which is compatible with
+        whatever is connected to the block.
+    name : str, optional, default=None
+        Name of the block. By default, the name of the `processor` function is
+        used.
+    hooks : list, optional, default=None
+        List of callables (callbacks) to run when after the block's `process`
+        method is called.
+    """
+
+    def __init__(self, processor, name=None, hooks=None):
+        super(CallablePipelineBlock, self).__init__(
+            name=processor.__name__, hooks=hooks)
+        self.processor = processor
+
+    def process(self, data):
+        return self.processor(data)

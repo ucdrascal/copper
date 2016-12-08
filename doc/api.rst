@@ -9,3 +9,4 @@ These are the modules/subpackages which constitute copper.
 .. toctree::
 
    api/core
+   api/common

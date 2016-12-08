@@ -13,20 +13,8 @@ real-time signal processing applications, but it can be useful in offline
 applications as well.
 
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
 
    guide
    api
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
