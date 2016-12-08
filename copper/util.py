@@ -35,6 +35,8 @@ def rolling_window(array, n):
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from copper.util import rolling_window
     >>> x = np.array([1, 2, 3, 4, 5])
     >>> rolling_window(x, 2)
     array([[1, 2],
@@ -45,12 +47,12 @@ def rolling_window(array, n):
     array([[1, 2, 3],
            [2, 3, 4],
            [3, 4, 5]])
-
     >>> x = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])
     >>> rolling_window(x, 2)
     array([[[1, 2],
             [2, 3],
             [3, 4]],
+    <BLANKLINE>
            [[5, 6],
             [6, 7],
             [7, 8]]])

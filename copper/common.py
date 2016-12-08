@@ -10,13 +10,14 @@ from copper.core import PipelineBlock
 
 
 class Windower(PipelineBlock):
-    """Windows incoming data to specific length.
+    """Windows incoming data to a specific length.
 
     Takes new input data and combines with past data to maintain a sliding
-    window with optional overlap.
+    window with optional overlap. The window length is specified directly, so
+    the overlap depends on the length of the input.
 
-    Input data is assumed to act like a numpy array with shape (num_channels,
-    num_samples).
+    The input length may change on each iteration, but the `Windower` must be
+    cleared before the number of channels can change.
 
     Parameters
     ----------
@@ -24,6 +25,36 @@ class Windower(PipelineBlock):
         Total number of samples to output on each iteration. This must be at
         least as large as the number of samples input to the windower on each
         iteration.
+
+    See also
+    --------
+    copper.common.Ensure2D: Ensure input to the windower is 2D.
+
+    Examples
+    --------
+    Basic use of a windower:
+
+    >>> import copper
+    >>> import numpy as np
+    >>> win = copper.Windower(4)
+    >>> win.process(np.array([[1, 2], [3, 4]]))
+    array([[ 0.,  0.,  1.,  2.],
+           [ 0.,  0.,  3.,  4.]])
+    >>> win.process(np.array([[7, 8], [5, 6]]))
+    array([[ 1.,  2.,  7.,  8.],
+           [ 3.,  4.,  5.,  6.]])
+    >>> win.clear()
+    >>> win.process(np.array([[1, 2], [3, 4]]))
+    array([[ 0.,  0.,  1.,  2.],
+           [ 0.,  0.,  3.,  4.]])
+
+    If your data is 1-dimensional (shape `(n_samples,)`), use an
+    :class:`Ensure2D` block in front of the :class:`Windower`:
+
+    >>> win = copper.Windower(4)
+    >>> p = copper.Pipeline([copper.Ensure2D(), win])
+    >>> p.process(np.array([1, 2]))
+    array([[ 0.,  0.,  1.,  2.]])
     """
 
     def __init__(self, length):
@@ -33,13 +64,39 @@ class Windower(PipelineBlock):
         self.clear()
 
     def clear(self):
+        """Clear the buffer containing previous input data.
+        """
         self._out = None
 
     def process(self, data):
+        """Add new data to the end of the window.
+
+        Parameters
+        ----------
+        data : array, shape (n_channels, n_samples)
+            Input data. `n_samples` must be less than or equal to the windower
+            `length`.
+
+        Returns
+        -------
+        out : array, shape (n_channels, length)
+            Output window with the input data at the end.
+        """
+        if data.ndim != 2:
+            raise ValueError("data must be 2-dimensional.")
+
+        n = data.shape[1]
+
+        if n > self.length:
+            raise ValueError("data must be shorter than window length.")
+
         if self._out is None:
             self._preallocate(data.shape[0])
 
-        n = data.shape[1]
+        if data.shape[0] != self._out.shape[0]:
+            raise ValueError("Number of channels cannot change without "
+                             "calling clear first.")
+
         if n == self.length:
             self._out = data
         else:
@@ -48,8 +105,8 @@ class Windower(PipelineBlock):
 
         return self._out.copy()
 
-    def _preallocate(self, num_channels):
-        self._out = np.zeros((num_channels, self.length))
+    def _preallocate(self, n_channels):
+        self._out = np.zeros((n_channels, self.length))
 
 
 class Filter(PipelineBlock):
@@ -256,13 +313,62 @@ class Transformer(PipelineBlock):
 
 
 class Ensure2D(PipelineBlock):
-    """Transforms a array with shape `(n,)` to shape `(n, 1)`.
+    """Transforms an array to ensure it has 2 dimensions.
 
-    See Also
+    Input with shape `(n,)` can be made to have shape `(n, 1)` or `(1, n)`.
+
+    Parameters
+    ----------
+    orientation : {'row', 'col'}, optional
+        Orientation of the output. If 'row', the output will have shape `(1,
+        n)`, meaning the output is a row vector. This is the default behavior,
+        useful when the data is something like samples of a 1-channel signal.
+        If 'col', the output will have shape `(n, 1)`, meaning the output is a
+        column vector.
+
+    Examples
     --------
-    :func:`axopy.util.ensure_2d`
+    Output row data:
+
+    >>> import numpy as np
+    >>> import copper
+    >>> block = copper.Ensure2D()
+    >>> block.process(np.array([1, 2, 3]))
+    array([[1, 2, 3]])
+
+    Output column data:
+
+    >>> block = copper.Ensure2D(orientation='col')
+    >>> block.process(np.array([1, 2, 3]))
+    array([[1],
+           [2],
+           [3]])
     """
 
+    def __init__(self, orientation='row'):
+        super(Ensure2D, self).__init__()
+        self.orientation = orientation
+
+        if orientation not in ['row', 'col']:
+            raise ValueError("orientation must be either 'row' or 'col'")
+
     def process(self, data):
+        """Make sure data is 2-dimensional.
+
+        If the input already has two dimensions, it is unaffected.
+
+        Parameters
+        ----------
+        data : array, shape (n,)
+            Input data.
+
+        Returns
+        -------
+        out : array, shape (1, n) or (n, 1)
+            Output data, with shape specified by `orientation`.
+        """
         data = ensure_2d(data)
-        return data.T
+        if self.orientation == 'row':
+            return data
+        else:
+            return data.T
