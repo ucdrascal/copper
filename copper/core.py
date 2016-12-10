@@ -4,7 +4,12 @@ Base classes for pipelines and pipeline blocks.
 
 
 class PipelineBlock(object):
-    """Basic unit of processing in a pipeline.
+    """Base class for all blocks in copper.
+
+    Notes
+    -----
+    Blocks should take their parameters in ``__init__`` and provide at least
+    the ``process`` method for taking in data and returning some result.
     """
 
     def __init__(self, name=None, hooks=None):
@@ -17,9 +22,19 @@ class PipelineBlock(object):
             self._hooks = []
 
     def process(self, data):
-        return data
+        """Process input data and produce a result.
+
+        Subclasses must implement this method, otherwise it shouldn't really be
+        a ``PipelineBlock``.
+        """
+        raise NotImplementedError
 
     def clear(self):
+        """Clear the state of the block.
+
+        Some blocks don't keep stateful attributes, so ``clear`` does nothing
+        by default.
+        """
         pass
 
     @property
@@ -38,39 +53,27 @@ class PipelineBlock(object):
 
 
 class Pipeline(PipelineBlock):
-    """
-    Container for processing a set of PipelineBlock objects arranged in a
-    block diagram structure.
+    """Feedforward arrangement of blocks for processing data.
+
+    A :class:`Pipeline` contains a set of :class:`PipelineBlock`s which operate
+    on data to produce a final output.
 
     To create a pipeline, the following two rules are needed: blocks in a list
     processed in series, and blocks in a tuple are processed in parallel.
 
-    For example, the following feeds incoming data first to block `a`, and the
-    output of block `a` is passed to both blocks `b` and `c`. The output of
-    blocks `b` and `c` are then both passed to block `d`.
-
-    >>> from copper import Pipeline, PipelineBlock
-    >>> a = PipelineBlock()
-    >>> b = PipelineBlock()
-    >>> c = PipelineBlock()
-    >>> d = PipelineBlock()
-    >>> p = Pipeline([a, (b, c), d])
-
-    Blocks that are arranged to take multiple inputs (such as block `d` in the
-    above example) should expect to take the corresponding number of inputs in
-    the order they are given. It is up to the user constructing the pipeline to
-    make sure that the arrangement of blocks makes sense.
+    Blocks that are arranged to take multiple inputs should expect to take the
+    corresponding number of inputs in the order they are given. It is up to the
+    user constructing the pipeline to make sure that the arrangement of blocks
+    makes sense.
 
     Parameters
     ----------
-
-    blocks : nested lists/tuples of objects derived from PiplineBlock
+    blocks : container
         The blocks in the pipline, with lists processed in series and tuples
         processed in parallel.
 
     Attributes
     ----------
-
     named_blocks : dict
         Dictionary of blocks in the pipeline. Keys are the names given to the
         blocks in the pipeline and values are the block objects.
@@ -86,7 +89,7 @@ class Pipeline(PipelineBlock):
 
     def process(self, data):
         """
-        Calls the `process` method of each block in the pipeline, passing the
+        Calls the ``process`` method of each block in the pipeline, passing the
         outputs around as specified in the block structure.
 
         Parameters
@@ -99,15 +102,15 @@ class Pipeline(PipelineBlock):
         Returns
         -------
         out : object
-            The data output by the `process` method of the last block(s) in the
-            pipeline.
+            The data output by the ``process`` method of the last block(s) in
+            the pipeline.
         """
         out = self._call_block('process', self.blocks, data)
         return out
 
     def clear(self):
         """
-        Calls the `clear` method on each block in the pipeline. The effect
+        Calls the ``clear`` method on each block in the pipeline. The effect
         depends on the blocks themselves.
         """
         self._call_block('clear', self.blocks)
