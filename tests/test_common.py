@@ -146,6 +146,12 @@ def test_fextractor_clear():
     assert_array_equal(np.array([0, 2]), ex.process(data_1ch))
 
 
+def test_ensure2d_bad_orientation():
+    # test exception raise if bad orientation string given
+    with pytest.raises(ValueError):
+        copper.Ensure2D(orientation='something')
+
+
 def test_ensure2d_row():
     data = rand_data_1d
     b = copper.Ensure2D()
@@ -162,3 +168,31 @@ def test_ensure2d_col():
 
     truth = data[:, np.newaxis]
     assert_array_equal(truth, b.process(data))
+
+
+def test_estimator():
+    class FakeEstimator(object):
+
+        def fit(self, X, y=None):
+            pass
+
+        def predict(self, data):
+            pass
+
+    block = copper.Estimator(FakeEstimator())
+    block.estimator.fit(0)
+    block.process(0)
+
+
+def test_transformer():
+    class FakeTransformer(object):
+
+        def fit(self, X, y=None):
+            pass
+
+        def transform(self, data):
+            pass
+
+    block = copper.Transformer(FakeTransformer())
+    block.transformer.fit(0)
+    block.process(0)
