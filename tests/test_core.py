@@ -207,6 +207,21 @@ def test_clear_pass():
     f.clear()
 
 
+def test_clear_pipeline():
+    init = 4
+    b = _Stateful(init)
+    p = copper.Pipeline([b])
+    p.process(data)
+
+    p.clear()
+    assert b.data == init
+
+
+def test_block_repr():
+    b = copper.PipelineBlock()
+    assert repr(b) == 'copper.core.PipelineBlock()'
+
+
 def test_process_unimplemented():
     # unimplemented process method should raise error
     a = copper.PipelineBlock()
