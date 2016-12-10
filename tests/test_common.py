@@ -101,6 +101,15 @@ def test_filter_overlap():
     assert_array_almost_equal(out1[:, -overlap:], out2[:, :overlap])
 
 
+def test_filter_1d():
+    # make sure a 1D array raises an error
+    data = np.array([1, 2, 3, 4])
+    block = copper.Filter(b, a)
+
+    with pytest.raises(ValueError):
+        block.process(data)
+
+
 def test_fextractor_simple():
     f0 = _NthSampleFeature(0)
     ex = copper.FeatureExtractor([('0', f0),

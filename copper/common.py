@@ -16,7 +16,7 @@ class Windower(PipelineBlock):
     window with optional overlap. The window length is specified directly, so
     the overlap depends on the length of the input.
 
-    The input length may change on each iteration, but the `Windower` must be
+    The input length may change on each iteration, but the ``Windower`` must be
     cleared before the number of channels can change.
 
     Parameters
@@ -26,7 +26,7 @@ class Windower(PipelineBlock):
         least as large as the number of samples input to the windower on each
         iteration.
 
-    See also
+    See Also
     --------
     copper.common.Ensure2D: Ensure input to the windower is 2D.
 
@@ -48,7 +48,7 @@ class Windower(PipelineBlock):
     array([[ 0.,  0.,  1.,  2.],
            [ 0.,  0.,  3.,  4.]])
 
-    If your data is 1-dimensional (shape `(n_samples,)`), use an
+    If your data is 1-dimensional (shape ``(n_samples,)``), use an
     :class:`Ensure2D` block in front of the :class:`Windower`:
 
     >>> win = copper.Windower(4)
@@ -74,8 +74,8 @@ class Windower(PipelineBlock):
         Parameters
         ----------
         data : array, shape (n_channels, n_samples)
-            Input data. `n_samples` must be less than or equal to the windower
-            `length`.
+            Input data. ``n_samples`` must be less than or equal to the
+            windower ``length``.
 
         Returns
         -------
@@ -129,6 +129,37 @@ class Filter(PipelineBlock):
         correct filter initial conditions in each filtering operation.
         Default is 0, meaning the final inputs/outputs of the previous update
         are used.
+
+    See Also
+    --------
+    copper.common.Ensure2D: Ensure input to the filter is 2D.
+
+    Examples
+    --------
+    Design a filter using scipy and use the coefficients:
+
+    >>> import copper
+    >>> import numpy as np
+    >>> from scipy.signal import butter
+    >>> b, a = butter(4, 100/1000/2)
+    >>> f = copper.Filter(b, a)
+    >>> f.process(np.random.randn(1, 5)) # doctest: +ELLIPSIS
+    array([...
+
+    Use a filter in combination with a :class:`Windower`, making sure to
+    account for overlapping data in consecutive filtering operations. Here,
+    we'll use a window of length 5 and pass in 3 samples at a time, so there
+    will be an overlap of 2 samples. The overlapping samples in each output
+    will agree:
+
+    >>> w = copper.Windower(5)
+    >>> f = copper.Filter(b, a, overlap=2)
+    >>> p = copper.Pipeline([w, f])
+    >>> out1 = p.process(np.random.randn(1, 3))
+    >>> out2 = p.process(np.random.randn(1, 3))
+    >>> out1[:, -2:] == out2[:, :2]
+    array([[ True,  True]], dtype=bool)
+
     """
 
     def __init__(self, b, a=1, overlap=0):
@@ -143,10 +174,10 @@ class Filter(PipelineBlock):
         """Clears the filter initial conditions.
 
         Clearing the initial conditions is important when starting a new
-        recording.
+        recording if ``overlap`` is nonzero.
         """
-        self.x_prev = None
-        self.y_prev = None
+        self._x_prev = None
+        self._y_prev = None
 
     def process(self, data):
         """Applies the filter to the input.
@@ -156,28 +187,32 @@ class Filter(PipelineBlock):
         data : ndarray, shape (n_channels, n_samples)
             Input signals.
         """
-        if self.x_prev is None:
+        if data.ndim != 2:
+            raise ValueError("data must be 2-dimensional.")
+
+        if self._x_prev is None:
             # first pass has no initial conditions
-            out = signal.lfilter(
-                self.b, self.a, data, axis=-1)
+            out = signal.lfilter(self.b, self.a, data, axis=-1)
         else:
             # subsequent passes get ICs from previous input/output
             num_ch = data.shape[0]
             K = max(len(self.a)-1, len(self.b)-1)
-            self.zi = np.zeros((num_ch, K))
+            self._zi = np.zeros((num_ch, K))
+
             # unfortunately we have to get zi channel by channel
             for c in range(data.shape[0]):
-                self.zi[c, :] = signal.lfiltic(
+                self._zi[c, :] = signal.lfiltic(
                     self.b,
                     self.a,
-                    self.y_prev[c, -(self.overlap+1)::-1],
-                    self.x_prev[c, -(self.overlap+1)::-1])
+                    self._y_prev[c, -(self.overlap+1)::-1],
+                    self._x_prev[c, -(self.overlap+1)::-1])
 
-            out, zf = signal.lfilter(
-                self.b, self.a, data, axis=-1, zi=self.zi)
+            out, zf = signal.lfilter(self.b, self.a, data, axis=-1,
+                                     zi=self._zi)
 
-        self.x_prev = data
-        self.y_prev = out
+        self._x_prev = data
+        self._y_prev = out
+
         return out
 
 
@@ -315,16 +350,17 @@ class Transformer(PipelineBlock):
 class Ensure2D(PipelineBlock):
     """Transforms an array to ensure it has 2 dimensions.
 
-    Input with shape `(n,)` can be made to have shape `(n, 1)` or `(1, n)`.
+    Input with shape ``(n,)`` can be made to have shape ``(n, 1)`` or
+    ``(1, n)``.
 
     Parameters
     ----------
     orientation : {'row', 'col'}, optional
-        Orientation of the output. If 'row', the output will have shape `(1,
-        n)`, meaning the output is a row vector. This is the default behavior,
-        useful when the data is something like samples of a 1-channel signal.
-        If 'col', the output will have shape `(n, 1)`, meaning the output is a
-        column vector.
+        Orientation of the output. If 'row', the output will have shape
+        ``(1, n)``, meaning the output is a row vector. This is the default
+        behavior, useful when the data is something like samples of a 1-channel
+        signal.  If 'col', the output will have shape ``(n, 1)``, meaning the
+        output is a column vector.
 
     Examples
     --------
@@ -365,7 +401,7 @@ class Ensure2D(PipelineBlock):
         Returns
         -------
         out : array, shape (1, n) or (n, 1)
-            Output data, with shape specified by `orientation`.
+            Output data, with shape specified by ``orientation``.
         """
         data = ensure_2d(data)
         if self.orientation == 'row':
