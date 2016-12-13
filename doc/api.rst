@@ -10,3 +10,4 @@ These are the modules/subpackages which constitute copper.
 
    api/core
    api/common
+   api/sources

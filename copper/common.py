@@ -1,6 +1,4 @@
-"""
-Common processing tasks.
-"""
+"""Common processing tasks."""
 
 import numpy as np
 from scipy import signal

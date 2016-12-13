@@ -3,6 +3,7 @@ from copper.core import (PipelineBlock, Pipeline, PassthroughPipeline,
 
 from copper.common import (Windower, Filter, FeatureExtractor, Estimator,
                            Transformer, Ensure2D)
+from copper.sources import segment, segment_indices
 
 __all__ = ['PipelineBlock',
            'Pipeline',
@@ -13,4 +14,6 @@ __all__ = ['PipelineBlock',
            'FeatureExtractor',
            'Estimator',
            'Transformer',
-           'Ensure2D']
+           'Ensure2D',
+           'segment',
+           'segment_indices']

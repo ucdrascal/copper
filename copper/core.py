@@ -1,6 +1,4 @@
-"""
-Base classes for pipelines and pipeline blocks.
-"""
+"""Base classes for pipelines and pipeline blocks."""
 
 
 class PipelineBlock(object):

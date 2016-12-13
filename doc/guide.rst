@@ -171,13 +171,13 @@ something. For multi-input blocks, you'll probably want to just expand the
 inputs right off the bat (e.g. ``in_a, in_b = data``). Usually, the output is
 some processed form of the input data::
 
-    from axopy import pipeline
+    import copper
 
-    class FooBlock(pipeline.PipelineBlock):
+    class FooBlock(copper.PipelineBlock):
         def process(self, data):
             return data + 1
 
-    class BarBlock(pipeline.PipelineBlock):
+    class BarBlock(copper.PipelineBlock):
         def process(self, data):
             return 2 * data
 
@@ -186,7 +186,7 @@ specifying how they are connected::
 
     a = FooBlock()
     b = BarBlock()
-    p = pipeline.Pipeline([a, b])
+    p = copper.Pipeline([a, b])
 
 Now, you just give the pipeline input and get its output::
 
@@ -214,16 +214,16 @@ after the block's ``process`` method finishes. To use hooks, make sure your
 custom block calls the parent ``PipelineBlock`` ``__init__`` method. For
 example::
 
-    from axopy import pipeline
+    import copper
 
-    class FooBlock(pipeline.PipelineBlock):
+    class FooBlock(copper.PipelineBlock):
         def __init__(self, hooks=None):
             super(FooBlock, self).__init__(hooks=hooks)
 
         def process(self, data):
             return data + 1
 
-    class BarBlock(pipeline.PipelineBlock):
+    class BarBlock(copper.PipelineBlock):
         def process(self, data):
             return 2 * data
 
@@ -233,7 +233,7 @@ example::
     a = FooBlock(hooks=[foo_hook])
     b = BarBlock()
 
-    p = pipeline.Pipeline([a, b])
+    p = copper.Pipeline([a, b])
     result = p.process(3)
 
 Now, the call to ``process`` on the pipeline will input 3 to block ``a``, block
