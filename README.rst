@@ -1,10 +1,7 @@
-::
+.. image:: doc/_static/logo_full.png
+   :alt: copper logo
 
-     ┌─□─  ┌─□─┐   ┌─□─┐   ┌─□─┐   ┌─□─┐   ┌─□──
-    ─┤    ─┤   ├─ ─┤   ├─ ─┤   ├─ ─┼─□─┴─ ─┤
-     └─□─  └─□─┘   ├─□─┘   ├─□─┘   └───    │
-                   │       │
-
+|
 
 .. image:: https://api.travis-ci.org/ucdrascal/copper.svg?branch=master
     :target: https://travis-ci.org/ucdrascal/copper
@@ -18,6 +15,7 @@
    :target: http://copper.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
+|
 
 ``copper`` is a small infrastructure for processing data in a pipeline style.
 You create pipeline blocks, then connect them up with an efficient (but still
