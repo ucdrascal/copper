@@ -3,7 +3,6 @@
 import numpy as np
 from scipy import signal
 
-from copper.util import ensure_2d
 from copper.core import PipelineBlock
 
 
@@ -401,7 +400,8 @@ class Ensure2D(PipelineBlock):
         out : array, shape (1, n) or (n, 1)
             Output data, with shape specified by ``orientation``.
         """
-        data = ensure_2d(data)
+        data = np.atleast_2d(data)
+
         if self.orientation == 'row':
             return data
         else:

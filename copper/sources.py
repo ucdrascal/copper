@@ -1,8 +1,7 @@
 """Data streams for processing with a pipeline."""
 
 import warnings
-
-from copper.util import ensure_2d
+import numpy as np
 
 
 def segment(data, length, overlap=0):
@@ -54,7 +53,7 @@ def segment(data, length, overlap=0):
     array([[1, 2, 3],
            [5, 6, 7]])
     """
-    data = ensure_2d(data)
+    data = np.atleast_2d(data)
     n = data.shape[1]
     for f, t in segment_indices(n, length, overlap=overlap):
         yield data[:, f:t]
