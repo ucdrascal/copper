@@ -106,6 +106,28 @@ class Windower(PipelineBlock):
         self._out = np.zeros((n_channels, self.length))
 
 
+class Centerer(PipelineBlock):
+    """Centers data by subtracting out its mean.
+
+    .. math:: x_c = x - \bar{x}
+    """
+
+    def process(self, data):
+        """Center each row of the input.
+
+        Parameters
+        ----------
+        data : array, shape (n_channels, n_samples)
+            Input data.
+
+        Returns
+        -------
+        out : array, shape (n_channels, n_samples)
+            Input data that's been centered.
+        """
+        return data - np.mean(data)
+
+
 class Filter(PipelineBlock):
     """Filters incoming data with a time domain filter.
 

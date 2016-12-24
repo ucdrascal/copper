@@ -86,6 +86,15 @@ def test_windower_clear():
     windower.process(rand_data_2d1)
 
 
+def test_centerer():
+    data = np.array([-1, 1, -1, 1])
+    centerer = copper.Centerer()
+    assert_array_equal(centerer.process(data), data)
+
+    data = rand_data_2d
+    assert data.shape == centerer.process(data).shape
+
+
 def test_filter_overlap():
     # make sure output is continuous when filtering overlapped data
     data = rand_data_2d
