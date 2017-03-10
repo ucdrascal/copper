@@ -85,7 +85,7 @@ def test_series():
     a = _FBlock()
     b = _GBlock()
     p = copper.Pipeline([a, b])
-    result = p.process(data)
+    result = p(data)
 
     assert result == _g(_f(data))
 

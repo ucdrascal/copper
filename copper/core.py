@@ -19,6 +19,9 @@ class PipelineBlock(object):
         if hooks is None:
             self._hooks = []
 
+    def __call__(self, *args, **kwargs):
+        return self.process(*args, **kwargs)
+
     def process(self, data):
         """Process input data and produce a result.
 
