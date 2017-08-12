@@ -214,7 +214,7 @@ class CallablePipelineBlock(PipelineBlock):
                  hooks=None):
         if name is None:
             name = func.__name__
-        super().__init__(name=name, hooks=hooks)
+        super(CallablePipelineBlock, self).__init__(name=name, hooks=hooks)
         self.func = func
         self.func_args = func_args if func_args is not None else []
         self.func_kwargs = func_kwargs if func_kwargs is not None else {}
