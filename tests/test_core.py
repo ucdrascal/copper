@@ -292,5 +292,20 @@ def test_callable_block():
     result = p.process(data)
     assert result == _g(_f(data))
 
+    # lambdas work too
     a = copper.CallablePipelineBlock(lambda x: x + 2)
     assert a.process(3) == 5
+
+    # check that naming works -- use name of function, not the class
+    a = copper.CallablePipelineBlock(_g)
+    assert a.name == '_g'
+
+
+def test_callable_block_with_args():
+    # pass additional args/kwargs to the function
+    def func(data, param, kwarg=None):
+        return param, kwarg
+
+    a = copper.CallablePipelineBlock(
+        func, func_args=(42,), func_kwargs={'kwarg': 10})
+    assert a.process(3) == (42, 10)

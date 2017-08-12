@@ -157,7 +157,7 @@ class PassthroughPipeline(Pipeline):
     """Convenience block for passing input along to output.
 
     A passthrough pipeline block is useful when you want to process some data
-    then provided both the processed output as well as the original input to
+    then provide both the processed output as well as the original input to
     another block downstream.
     """
 
@@ -183,12 +183,25 @@ class CallablePipelineBlock(PipelineBlock):
     function that can be called repeatedly. This class is for conveniently
     creating such a block.
 
+    If the function you want to use takes additional arguments, such as a
+    keyword argument that
+
+    Note: if you use an anonymous function as the `func` argument, (e.g.
+    ``lambda x: 2*x``), it is recommended to explicitly give the block a
+    meaningful name.
+
     Parameters
     ----------
-    processor : callable(data)
+    func : callable(data)
         Function that gets called when the block's `process` method is called.
         Should take a single input and return output which is compatible with
         whatever is connected to the block.
+    func_args : list, optional
+        List (or tuple) of additional arguments to pass to `func` when calling
+        it for processing. If None (default), no arguments are used.
+    func_kwargs : dict
+        Keyword argument name/value pairs to pass to `func` when calling it for
+        processing. If None (default), no keyword arguments are used.
     name : str, optional, default=None
         Name of the block. By default, the name of the `processor` function is
         used.
@@ -197,10 +210,14 @@ class CallablePipelineBlock(PipelineBlock):
         method is called.
     """
 
-    def __init__(self, processor, name=None, hooks=None):
-        super(CallablePipelineBlock, self).__init__(
-            name=processor.__name__, hooks=hooks)
-        self.processor = processor
+    def __init__(self, func, func_args=None, func_kwargs=None, name=None,
+                 hooks=None):
+        if name is None:
+            name = func.__name__
+        super().__init__(name=name, hooks=hooks)
+        self.func = func
+        self.func_args = func_args if func_args is not None else []
+        self.func_kwargs = func_kwargs if func_kwargs is not None else {}
 
     def process(self, data):
-        return self.processor(data)
+        return self.func(data, *self.func_args, **self.func_kwargs)
