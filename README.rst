@@ -21,3 +21,5 @@
 You create pipeline blocks, then connect them up with an efficient (but still
 readable) syntax. It was originally created for flexibly creating pipelines
 in real-time signal processing applications.
+
+**copper has been merged into** `AxoPy <https://github.com/ucdrascal/axopy>`_ **and is no longer maintained independently**
